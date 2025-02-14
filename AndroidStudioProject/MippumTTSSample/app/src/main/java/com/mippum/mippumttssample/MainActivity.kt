@@ -3,7 +3,9 @@ package com.mippum.mippumttssample
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.OnInitListener
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
@@ -17,6 +19,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var textToSpeech: TextToSpeech
     private lateinit var speakButton: Button
+    private lateinit var voiceSpinner: Spinner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +27,7 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.activity_main)
 
         speakButton = findViewById(R.id.speak_button)
+        voiceSpinner = findViewById(R.id.voice_spinner)
 
         textToSpeech = TextToSpeech(this, OnInitListener { status ->
             if (status == TextToSpeech.SUCCESS) {
@@ -31,6 +35,16 @@ class MainActivity : ComponentActivity() {
                 if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Toast.makeText(this, "Language Missing", Toast.LENGTH_SHORT).show()
                 }
+
+                val voices = textToSpeech.voices
+                val voiceNames = voices.map { it.name }
+
+                val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, voiceNames)
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                voiceSpinner.adapter = adapter
+
+                voiceSpinner.setSelection(0)
+
             } else {
                 Toast.makeText(this, "TTS Init Fail", Toast.LENGTH_SHORT).show()
             }
@@ -44,6 +58,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun speakOut(text: String) {
+        val selectedVoiceName = voiceSpinner.selectedItem.toString()
+
+        val voices = textToSpeech.voices
+        val selectedVoice = voices.find { it.name == selectedVoiceName }
+
+        if (selectedVoice != null) {
+            textToSpeech.voice = selectedVoice
+        }
+
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
@@ -55,20 +78,4 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MippumTTSSampleTheme {
-        Greeting("Android")
-    }
 }

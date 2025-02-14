@@ -6,6 +6,12 @@
     android:padding="16dp"
     android:gravity="center">
 
+    <Spinner
+        android:id="@+id/voice_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp" />
+
     <Button
         android:id="@+id/speak_button"
         android:layout_width="wrap_content"
